@@ -10,6 +10,7 @@ protols that ensure the formatting issue
 # 16169703
 
 import json
+import time
 from collections import namedtuple
 
 # Namedtuple to hold the values retrieved from json messages.
@@ -39,3 +40,57 @@ def to_json(dict_):
     """
     json_str = json.dumps(dict_)
     return json_str
+
+
+def bio_msg(token, _bio):
+    """
+    formatting bio
+    """
+    dict_bio = {"token": f"{token}", "bio": {"entry": f"{_bio}", "timestamp":
+                                             f"{time.time()}"}}
+    bio_text = to_json(dict_bio)
+    return bio_text
+
+
+def post_msg(token, _post):
+    """
+    formatting post
+    """
+    dict_post = {"token": f"{token}", "post": {"entry": f"{_post}",
+                                               "timestamp": f"{time.time()}"}}
+    post_ = to_json(dict_post)
+    return post_
+
+
+def join_txt(username, password):
+    """
+    formatting join
+    """
+    usr = f'"username": "{username}"'
+    psw = f'"password": "{password}"'
+    info_txt = f'{{{usr}, {psw}, "token":""}}'
+
+    join = f'"join": {info_txt}'
+    join_msg = '{' + join + '}'
+    return join_msg
+
+
+def direct_msg(_token, send_msg, recipent):
+    """
+    formatting direct message
+    """
+    ditc_msg = {"token": f"{_token}",
+                "directmessage": {"entry": f"{send_msg}",
+                                  "recipient": f"{recipent}",
+                                  "timestamp": f"{time.time()}"}}
+    msg_ = to_json(ditc_msg)
+    return msg_
+
+
+def request(_token):
+    """
+    formatting retrieve message
+    """
+    unread_msg = {"token": f"{_token}", "directmessage": "new"}
+    all_msg = {"token": f"{_token}", "directmessage": "all"}
+    return unread_msg, all_msg
