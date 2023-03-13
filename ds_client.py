@@ -49,7 +49,8 @@ def send(
                 publish_post = ds_protocol.post_msg(usr_token, message)
                 publish_bio = ds_protocol.bio_msg(usr_token, bio)
 
-                send_msg = ds_protocol.direct_msg(usr_token, message, username)
+                send_msg = ds_protocol.direct_msg(usr_token, message, 'ohhimark')
+
                 if post and (not _bio_):
                     flush_msg(send_, publish_post)
                     print('Post successfuly uploaded')
@@ -63,9 +64,10 @@ def send(
                     print('Post and Bio successfully uploaded')
                 else:
                     pass
-                time.sleep(0.5)
                 flush_msg(send_, send_msg)
-                print('Successfully sending message')
+                resp_ = recv.readline()[:-1]
+                print("Response received from server: ", resp_)
+                flush_msg(send_, send_msg)
                 return True
             return True
         except Exception:

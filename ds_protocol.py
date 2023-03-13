@@ -75,7 +75,7 @@ def join_txt(username, password):
     return join_msg
 
 
-def direct_msg(_token, send_msg, recipent):
+def direct_msg(_token, send_msg, recipent='ohhimark'):
     """
     formatting direct message
     """
