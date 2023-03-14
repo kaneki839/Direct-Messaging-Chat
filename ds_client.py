@@ -49,14 +49,17 @@ def send(
                 publish_post = ds_protocol.post_msg(usr_token, message)
                 publish_bio = ds_protocol.bio_msg(usr_token, bio)
 
-                send_msg = ds_protocol.direct_msg(usr_token, message, 'ohhimark')
+                # fix username and message
+                send_msg = ds_protocol.direct_msg(usr_token, message, username)
+
+                unread_req, all_req = ds_protocol.retrieve(usr_token)
 
                 if post and (not _bio_):
                     flush_msg(send_, publish_post)
-                    print('Post successfuly uploaded')
+                    recv_msg(recv)
                 elif _bio_ and (not post):
                     flush_msg(send_, publish_bio)
-                    print('Bio successfully uploaded')
+                    recv_msg(recv)
                 elif post and _bio_:
                     flush_msg(send_, publish_post)
                     time.sleep(0.1)
@@ -64,10 +67,17 @@ def send(
                     print('Post and Bio successfully uploaded')
                 else:
                     pass
+                # dm
+                time.sleep(0.1)
                 flush_msg(send_, send_msg)
-                resp_ = recv.readline()[:-1]
-                print("Response received from server: ", resp_)
-                flush_msg(send_, send_msg)
+                recv_msg(recv)
+                # request
+                time.sleep(0.1)
+                flush_msg(send_, unread_req)
+                recv_msg(recv)
+                time.sleep(0.1)
+                flush_msg(send_, all_req)
+                recv_msg(recv)
                 return True
             return True
         except Exception:
@@ -80,3 +90,8 @@ def flush_msg(send_, msg):
     """
     send_.write(msg + "\r\n")
     send_.flush()
+
+
+def recv_msg(recv_):
+    resp = recv_.readline()[:-1]
+    print("Response received from server: ", resp)

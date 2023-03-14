@@ -75,22 +75,25 @@ def join_txt(username, password):
     return join_msg
 
 
-def direct_msg(_token, send_msg, recipent='ohhimark'):
+def direct_msg(_token, send_msg, recipent):
     """
     formatting direct message
     """
-    ditc_msg = {"token": f"{_token}",
+    dict_msg = {"token": f"{_token}",
                 "directmessage": {"entry": f"{send_msg}",
                                   "recipient": f"{recipent}",
                                   "timestamp": f"{time.time()}"}}
-    msg_ = to_json(ditc_msg)
+    msg_ = to_json(dict_msg)
     return msg_
 
 
-def request(_token):
+def retrieve(_token):
     """
     formatting retrieve message
     """
     unread_msg = {"token": f"{_token}", "directmessage": "new"}
     all_msg = {"token": f"{_token}", "directmessage": "all"}
-    return unread_msg, all_msg
+
+    unread = to_json(unread_msg)
+    all = to_json(all_msg)
+    return unread, all
