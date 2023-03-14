@@ -42,6 +42,11 @@ def to_json(dict_):
     return json_str
 
 
+def from_json(json_msg):
+    p_dict = json.loads(json_msg)
+    return p_dict
+
+
 def bio_msg(token, _bio):
     """
     formatting bio

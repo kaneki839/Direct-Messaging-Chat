@@ -55,33 +55,51 @@ def send(
                 unread_req, all_req = ds_protocol.retrieve(usr_token)
 
                 if post and (not _bio_):
-                    flush_msg(send_, publish_post)
-                    recv_msg(recv)
+                    flush_and_recv(send_, publish_post, recv)
                 elif _bio_ and (not post):
-                    flush_msg(send_, publish_bio)
-                    recv_msg(recv)
+                    flush_and_recv(send_, publish_bio, recv)
                 elif post and _bio_:
-                    flush_msg(send_, publish_post)
+                    flush_and_recv(send_, publish_post, recv)
                     time.sleep(0.1)
-                    flush_msg(send_, publish_bio)
+                    flush_and_recv(send_, publish_bio, recv)
                     print('Post and Bio successfully uploaded')
                 else:
                     pass
                 # dm
                 time.sleep(0.1)
-                flush_msg(send_, send_msg)
-                recv_msg(recv)
+                flush_and_recv(send_, send_msg, recv)
                 # request
                 time.sleep(0.1)
                 flush_msg(send_, unread_req)
-                recv_msg(recv)
+                resp = recv.readline()[:-1]
+                print("Response received from server: ", resp)
                 time.sleep(0.1)
                 flush_msg(send_, all_req)
-                recv_msg(recv)
+                resp = recv.readline()[:-1]
+                print("Response received from server: ", resp)
                 return True
             return True
         except Exception:
             return False
+
+
+def only_join(server: str, port: int, username: str, password: str):
+    client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client.connect((server, port))
+
+    print(f'Client connected to {server} on {port}')
+
+    send_ = client.makefile('w')
+    recv = client.makefile('r')
+
+    join_msg = ds_protocol.join_txt(username, password)
+    flush_msg(send_, join_msg)
+    resp = recv.readline()[:-1]
+    print("Response received from server: ", resp)
+    data_tuple = ds_protocol.extract_json(resp)
+    usr_token = data_tuple.token
+
+    return usr_token
 
 
 def flush_msg(send_, msg):
@@ -92,6 +110,8 @@ def flush_msg(send_, msg):
     send_.flush()
 
 
-def recv_msg(recv_):
+def flush_and_recv(send_, msg, recv_):
+    send_.write(msg + "\r\n")
+    send_.flush()
     resp = recv_.readline()[:-1]
     print("Response received from server: ", resp)
