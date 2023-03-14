@@ -92,13 +92,19 @@ def direct_msg(_token, send_msg, recipent):
     return msg_
 
 
-def retrieve(_token):
+def retrieve_new(_token):
     """
-    formatting retrieve message
+    formatting retrieve of new message
     """
     unread_msg = {"token": f"{_token}", "directmessage": "new"}
-    all_msg = {"token": f"{_token}", "directmessage": "all"}
-
     unread = to_json(unread_msg)
+    return unread
+
+
+def retrieve_all(_token):
+    """
+    formatting retrieve of all messages
+    """
+    all_msg = {"token": f"{_token}", "directmessage": "all"}
     all = to_json(all_msg)
-    return unread, all
+    return all
