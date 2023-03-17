@@ -7,6 +7,9 @@ import ds_protocol
 
 
 class DirectMessage:
+    """
+    class that store the response data from the server
+    """
     def __init__(self):
         self.recipient = None
         self.message = None
@@ -81,8 +84,8 @@ class DirectMessenger:
             dm_lst.append(dm_obj)
         return dm_lst
 
-
-sender_obj = DirectMessenger('168.235.86.101', 'mikey', '0123')
-sender_obj.send('testing again', 'mikey')
-print(sender_obj.retrieve_new())
-print(sender_obj.retrieve_all())
+# testing code
+# sender_obj = DirectMessenger('168.235.86.101', 'mikey', '0123')
+# sender_obj.send('testing again', 'ohhimark')
+# print(sender_obj.retrieve_new())
+# print(sender_obj.retrieve_all())

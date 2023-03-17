@@ -33,8 +33,6 @@ def main(saved_file=None):
         saved_file = o_command()
     elif input_command[0] == 'E':
         e_command(saved_file)
-    elif input_command[0] == 'P':
-        p_command(saved_file)
     return saved_file
 
 
@@ -138,38 +136,6 @@ def e_command(saved_file):
         profile.save_profile(dsu_file)
 
 
-def p_command(saved_file):
-    """
-    Command P (printing)
-    """
-    if saved_file:
-        dsu_file = saved_file
-        print(f"The dsu file that is obtained is {str(dsu_file)}")
-        profile = Profile.Profile()
-        print(profile)
-        profile.load_profile(dsu_file)
-        for _str in input_command:
-            if _str == '-usr':
-                print(profile.username)
-            elif _str == '-pwd':
-                print(profile.password)
-            elif _str == '-bio':
-                print(profile.bio)
-            elif _str == '-posts':
-                all_post = profile.get_posts()
-                for post in all_post:
-                    print(f'id:{all_post.index(post)} post:{post}')
-            elif _str == '-post':
-                id_ = input_command[input_command.index('-post') + 1]
-                print(profile.get_posts()[int(id_)])
-            elif _str == '-all':
-                print(f'dsuserver: {profile.dsuserver}')
-                print(f'username: {profile.username}')
-                print(f'password: {profile.password}')
-                print(f'bio: {profile.bio}')
-                print(f'posts: {profile.get_posts()}')
-
-
 def weather_transcluded(entry):
     """
     transclusion for openweather class
@@ -237,7 +203,7 @@ if __name__ == "__main__":
         try:
             input_command = command  # ui
 
-            if input_command[0] in ["L", "O", "C", "D", "R"]:
+            if input_command[0] in ["O", "C"]:
                 inputPath = Path(input_command[1])
 
             if len(input_command) >= 2:
