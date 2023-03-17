@@ -138,7 +138,7 @@ class Profile:
 
         if _path.exists() and _path.suffix == '.dsu':
             try:
-                _file = open(_path, 'w')
+                _file = open(_path, 'w', encoding='utf-8')
                 json.dump(self.__dict__, _file)
                 _file.close()
             except Exception as ex:
@@ -155,7 +155,7 @@ class Profile:
 
         if path_.exists() and path_.suffix == '.dsu':
             try:
-                file = open(path_, 'r')
+                file = open(path_, 'r', encoding='utf-8')
                 obj = json.load(file)
                 self.username = obj['username']
                 self.password = obj['password']

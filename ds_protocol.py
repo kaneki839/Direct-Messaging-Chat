@@ -36,13 +36,16 @@ def extract_json(json_msg: str) -> DataTuple:
 
 def to_json(dict_):
     """
-    conver dictionary to json format
+    convert dictionary to json format
     """
     json_str = json.dumps(dict_)
     return json_str
 
 
 def from_json(json_msg):
+    """
+    convert json to dictionary
+    """
     p_dict = json.loads(json_msg)
     return p_dict
 
@@ -106,5 +109,5 @@ def retrieve_all(_token):
     formatting retrieve of all messages
     """
     all_msg = {"token": f"{_token}", "directmessage": "all"}
-    all = to_json(all_msg)
-    return all
+    all_ = to_json(all_msg)
+    return all_
