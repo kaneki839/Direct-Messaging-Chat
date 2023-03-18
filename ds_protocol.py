@@ -30,6 +30,7 @@ def extract_json(json_msg: str) -> DataTuple:
         token = json_obj['response']['token']
     except json.JSONDecodeError:
         print("Json cannot be decoded.")
+        return False
 
     return DataTuple(response, token)
 
@@ -50,26 +51,6 @@ def from_json(json_msg):
     return p_dict
 
 
-def bio_msg(token, _bio):
-    """
-    formatting bio
-    """
-    dict_bio = {"token": f"{token}", "bio": {"entry": f"{_bio}", "timestamp":
-                                             f"{time.time()}"}}
-    bio_text = to_json(dict_bio)
-    return bio_text
-
-
-def post_msg(token, _post):
-    """
-    formatting post
-    """
-    dict_post = {"token": f"{token}", "post": {"entry": f"{_post}",
-                                               "timestamp": f"{time.time()}"}}
-    post_ = to_json(dict_post)
-    return post_
-
-
 def join_txt(username, password):
     """
     formatting join
@@ -88,8 +69,8 @@ def direct_msg(_token, send_msg, recipent):
     formatting direct message
     """
     dict_msg = {"token": f"{_token}",
-                "directmessage": {"entry": f"{send_msg}",
-                                  "recipient": f"{recipent}",
+                "directmessage": {"entry": send_msg,
+                                  "recipient": recipent,
                                   "timestamp": f"{time.time()}"}}
     msg_ = to_json(dict_msg)
     return msg_

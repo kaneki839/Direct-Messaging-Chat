@@ -14,11 +14,9 @@ Main module that run whole program
 
 from pathlib import Path
 import sys
-import ds_client
 import Profile
 import ui
-from OpenWeather import OpenWeather
-from LastFM import LastFm
+import ds_messenger
 
 
 def main(saved_file=None):
@@ -118,81 +116,26 @@ def e_command(saved_file):
                 profile.bio = input_command[input_command.index('-bio') + 1]
             elif _str == '-addpost':
                 entry = input_command[input_command.index('-addpost') + 1]
-                new_transclude_entry = check_keyword(entry)
                 if entry.isspace():
                     print('post cannot be empty')
                 else:
-                    new_post = Profile.Post(new_transclude_entry)
+                    new_post = Profile.Post(entry)
                     profile.add_post(new_post)
-                    ds_client.send(
-                        profile.dsuserver,
-                        3021,
-                        profile.username, profile.password,
-                        new_transclude_entry, profile.bio)
+                    recipient = 'ohhimark'
+                    msg = 'test_msg'
+                    sender_obj = ds_messenger.DirectMessenger('168.235.86.101', 'killua', '789')
+                    sender_obj.send(msg, recipient)
+                    profile.add_recipient(recipient)
+                    sender_lst = sender_obj.retrieve_all()
+                    print(sender_lst)
+                    for dsm_obj in sender_lst:
+                        msg_dict = dsm_obj.__dict__
+                        profile.add_msg(msg_dict)
             elif _str == '-delpost':
                 _id = input_command[input_command.index('-delpost') + 1]
                 profile.get_posts()
                 profile.del_post(int(_id))
         profile.save_profile(dsu_file)
-
-
-def weather_transcluded(entry):
-    """
-    transclusion for openweather class
-    """
-    ccode = 'US'
-    zipcode = '92697'
-    apikey = "bb34f51838f49bca2be3d07c1285afa1"
-
-    open_weather = OpenWeather(zipcode, ccode)
-    open_weather.set_apikey(apikey)
-    open_weather.load_data()
-
-    transcluded_entry = entry.split()
-    for element in enumerate(transcluded_entry):
-        if transcluded_entry[element[0]] == '@weather':
-            transcluded_entry[element[0]] = open_weather.transclude(
-                message=transcluded_entry[element[0]])
-
-    return ' '.join(transcluded_entry)
-
-
-def lastfm_transcluded(entry):
-    """
-    transclusion for lastfm class
-    """
-    artist = 'keshi'
-    album = 'GABRIEL'
-    apikey = "805379ee63e55d5dba6a123ab70e48f5"
-
-    last_fm = LastFm(artist, album)
-    last_fm.set_apikey(apikey)
-    last_fm.load_data()
-
-    new_entry = entry.split()
-    for element in enumerate(new_entry):
-        if new_entry[element[0]] == '@lastfm':
-            new_entry[element[0]] = last_fm.transclude(
-                message=new_entry[element[0]])
-
-    return ' '.join(new_entry)
-
-
-def check_keyword(entry):
-    """
-    Check if keyword is in the post entered
-    """
-    transclude_post = entry
-    if '@lastfm' in entry and '@weather' in entry:
-        transclude_post = lastfm_transcluded(weather_transcluded(entry))
-    else:
-        if '@lastfm' in entry:
-            transclude_post = lastfm_transcluded(entry)
-        elif '@weather' in entry:
-            transclude_post = weather_transcluded(entry)
-        else:
-            pass
-    return transclude_post
 
 
 if __name__ == "__main__":

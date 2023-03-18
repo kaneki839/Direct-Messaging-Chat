@@ -20,8 +20,8 @@ class TestDsProtocol(unittest.TestCase):
         to ensure receiving ok messaae
         """
         token, send, recv, client = ds_client.only_join('168.235.86.101',
-                                                        3021, 'mikey',
-                                                        '0123')
+                                                        3021, 'killua',
+                                                        '789')
 
         send_msg = ds_protocol.direct_msg(token, 'Hello!', 'ohhimark')
         assert ds_client.flush_and_recv(
@@ -39,6 +39,6 @@ class TestDsProtocol(unittest.TestCase):
                                         recv)["response"]["type"] == "ok"
         client.close()
 
-
-if __name__ == "__main__":
-    unittest.main()
+    def test_extract_json(self):
+        json_str = '{"response":}}'
+        assert ds_protocol.extract_json(json_str) is False

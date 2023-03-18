@@ -15,6 +15,14 @@ class DirectMessage:
         self.message = None
         self.timestamp = None
 
+    def set_attributes(self, message, recipient, timestamp):
+        """
+        store data into directmessage class
+        """
+        self.message = message
+        self.recipient = recipient
+        self.timestamp = timestamp
+
 
 class DirectMessenger:
     """
@@ -57,9 +65,8 @@ class DirectMessenger:
         dm_lst = []
         for msg in msg_lst:
             dm_obj = DirectMessage()
-            dm_obj.recipient = self.username
-            dm_obj.message = msg["message"]
-            dm_obj.timestamp = msg["timestamp"]
+            dm_obj.set_attributes(msg["from"], msg["message"], msg["timestamp"]
+                                  )
             dm_lst.append(dm_obj)
         return dm_lst
 
@@ -78,14 +85,13 @@ class DirectMessenger:
         dm_lst = []
         for msg in msg_lst:
             dm_obj = DirectMessage()
-            dm_obj.recipient = self.username
-            dm_obj.message = msg["message"]
-            dm_obj.timestamp = msg["timestamp"]
+            dm_obj.set_attributes(msg["from"], msg["message"], msg["timestamp"]
+                                  )
             dm_lst.append(dm_obj)
         return dm_lst
 
 # testing code
-# sender_obj = DirectMessenger('168.235.86.101', 'mikey', '0123')
-# sender_obj.send('testing again', 'ohhimark')
+# sender_obj = DirectMessenger('168.235.86.101', 'killua', '789')
+# sender_obj.send("hihihih", 'ohhimark')
 # print(sender_obj.retrieve_new())
 # print(sender_obj.retrieve_all())

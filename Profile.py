@@ -18,6 +18,7 @@ Profile module
 import json
 import time
 from pathlib import Path
+import ds_messenger
 
 
 class DsuFileError(Exception):
@@ -107,6 +108,20 @@ class Profile:
         self.password = password  # REQUIRED
         self.bio = ''            # OPTIONAL
         self._posts = []         # OPTIONAL
+        self._friend = []
+        self._messages = []
+
+    def add_recipient(self, recipient):
+        """
+        adding recipient
+        """
+        self._friend.append(recipient)
+
+    def add_msg(self, dir_msg_obj):
+        """
+        adding directmessage object
+        """
+        self._messages.append(dir_msg_obj)
 
     def add_post(self, post: Post) -> None:
         """
@@ -164,6 +179,12 @@ class Profile:
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
+                for dir_msg_obj in obj["_messages"]:
+                    msg = ds_messenger.DirectMessage()
+                    msg.set_attributes(dir_msg_obj["from"],
+                                       dir_msg_obj["message"],
+                                       dir_msg_obj["timestamp"])
+                    self._messages.append(msg)
                 file.close()
             except Exception as ex:
                 raise DsuProfileError(ex) from ex

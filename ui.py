@@ -32,61 +32,12 @@ def command_menu():
     return command_lst
 
 
-def join_server():
-    """
-    Check if user want join server
-    """
-    ask = input('Do you want join the DSP server? (Y/N) ')
-    if ask == 'Y':
-        return True
-    if ask == 'N':
-        return False
-    sys.exit('Invalid command')
-
-
-def upload_bio():
-    """
-    Check if user want upload bio
-    """
-    bio_ask = input('Do you want to upload bio? (Y/N) ')
-    if bio_ask == 'Y':
-        return True
-    if bio_ask == 'N':
-        return False
-    sys.exit('Invalid command')
-
-
-def upload_post():
-    """
-    Check if user want upload post
-    """
-    post_ask = input('Do you want to upload post? (Y/N) ')
-    if post_ask == 'Y':
-        return True
-    if post_ask == 'N':
-        return False
-    sys.exit('Invalid command')
-
-
-def send_process():
-    """
-    Checking system for client module
-    """
-    join = False
-    if join_server():
-        join = True
-        post = upload_post()
-        bio = upload_bio()
-        return join, post, bio
-    return None
-
-
 def enter_ui():
     """
     Whole user interface for a4 module
     """
     command_lst = command_menu()
-    if command_lst[0] in ['L', 'C', 'D', 'R', 'O']:
+    if command_lst[0] in ['C', 'O']:
         print('Great! What is the name of the file? (Path)')
         path = input()
         command_lst.append(path)
@@ -120,9 +71,6 @@ def enter_ui():
                 command_lst.append(bio)
             elif feature == '-addpost':
                 print('Enter the post:')
-                print('You can also enter keyword in your post: ')
-                print('@weather (Weather\'s description) / ', end='')
-                print('@lastfm (Artist\'s name)')
                 post = input()
                 command_lst.append(post)
             elif feature == '-delpost':
