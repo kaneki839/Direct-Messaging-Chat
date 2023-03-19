@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 from typing import Text
+import Profile
+from ds_messenger import DirectMessage
+import time
 
 
 class Body(tk.Frame):
@@ -15,10 +18,13 @@ class Body(tk.Frame):
         self._draw()
 
     def node_select(self, event):
-        index = int(self.posts_tree.selection()[0])
-        entry = self._contacts[index]
-        if self._select_callback is not None:
-            self._select_callback(entry)
+        print(event)
+        idx = self.posts_tree.selection()
+        if len(idx) > 0:
+            index = int(self.posts_tree.selection()[0])
+            entry = self._contacts[index]
+            if self._select_callback is not None:
+                self._select_callback(entry)
 
     def insert_contact(self, contact: str):
         self._contacts.append(contact)
@@ -30,16 +36,19 @@ class Body(tk.Frame):
             entry = contact[:24] + "..."
         id = self.posts_tree.insert('', id, id, text=contact)
 
-    def insert_user_message(self, message:str):
-        self.entry_editor.insert(1.0, message + '\n', 'entry-right')
+    def insert_user_message(self, message: str):
+        self.entry_editor.insert(tk.END, message + '\n', 'entry-right')
 
-    def insert_contact_message(self, message:str):
+    def clear_user_message(self):
+        self.entry_editor.delete(1.0, tk.END)
+
+    def insert_contact_message(self, message: str):
         self.entry_editor.insert(1.0, message + '\n', 'entry-left')
 
     def get_text_entry(self) -> str:
         return self.message_editor.get('1.0', 'end').rstrip()
 
-    def set_text_entry(self, text:str):
+    def set_text_entry(self, text: str):
         self.message_editor.delete(1.0, tk.END)
         self.message_editor.insert(1.0, text)
 
@@ -93,7 +102,8 @@ class Footer(tk.Frame):
             self._send_callback()
 
     def _draw(self):
-        save_button = tk.Button(master=self, text="Send", width=20)
+        save_button = tk.Button(master=self, text="Send", width=20,
+                                command=self.send_click)
         # You must implement this.
         # Here you must configure the button to bind its click to
         # the send_click() function.
@@ -127,15 +137,15 @@ class NewContactDialog(tk.simpledialog.Dialog):
         self.password_label = tk.Label(frame, width=30, text="Password")
         self.password_label.pack()
         self.password_entry = tk.Entry(frame, width=30)
-        self.password_entry['show'] = '*'
-        self.password_entry.insert(tk.END, self.user)
+        # self.password_entry['show'] = '*'
+        self.password_entry.insert(tk.END, self.pwd)
         self.password_entry.pack()
         # You need to implement also the region for the user to enter
         # the Password. The code is similar to the Username you see above
         # but you will want to add self.password_entry['show'] = '*'
         # such that when the user types, the only thing that appears are
         # * symbols.
-        #self.password...
+        # self.password...
 
     def apply(self):
         self.user = self.username_entry.get()
@@ -151,33 +161,50 @@ class MainApp(tk.Frame):
         self.password = ""
         self.server = ""
         self.recipient = None
+        self.message = None
         # You must implement this! You must configure and
         # instantiate your DirectMessenger instance after this line.
-        #self.direct_messenger = ... continue!
+        # self.direct_messenger = ... continue!
 
         # After all initialization is complete,
         # call the _draw method to pack the widgets
         # into the root frame
         self._draw()
-        self.body.insert_contact("studentexw23") # adding one example student.
 
     def open_file(self):
         """
         open the user selected dsu file
         """
-        ask_file = filedialog.askopenfilename(title="Select a dsu file", filetypes=[("Dsu files", "*.dsu")])
-        try:
-            with open(ask_file) as my_f:
-                print(f"{ask_file} is opened")
-                pass
-        except FileNotFoundError:
-            pass
+        dsu_file = filedialog.askopenfilename(title="Select a dsu file",
+                                              filetypes=[("Dsu files", "*.dsu")
+                                                         ])
+        with open(dsu_file) as my_f:
+            print(f"{dsu_file} is opened")
+        profile = Profile.Profile()
+        profile.load_profile(dsu_file)
+        self.username = profile.username
+        self.password = profile.password
+        self.server = profile.dsuserver
+        self.recipient = profile._friend
+        self.message = profile._messages
+        single_friend = {}
+        place_holder = 0
+        for dir_msg_obj in self.message:
+            single_friend[dir_msg_obj.__dict__["recipient"]] = place_holder
+            place_holder += 1
+        for key in single_friend.keys():
+            self.body.insert_contact(key)
+        return True
+
+    def clear_txt_window(self):
+        del self.body
 
     def create_file(self):
         """
         create new dsu file
         """
-        f_name = tk.simpledialog.askstring("Ask file name", "Enter file name: ")
+        f_name = tk.simpledialog.askstring("Ask file name", "Enter file name: "
+                                           )
         with open(f_name + ".dsu", "w") as f:
             pass
         print(f_name + ".dsu was created")
@@ -191,7 +218,14 @@ class MainApp(tk.Frame):
 
     def send_message(self):
         # You must implement this!
-        pass
+        msg = self.body.get_text_entry()
+        if self.recipient is not None:
+            dir_msg = DirectMessage()
+            dir_msg.set_attributes(msg, self.recipient, str(time.time()))
+            self.message.append(dir_msg)
+            self.body.insert_user_message(msg)
+
+        self.body.set_text_entry("")
 
     def add_contact(self):
         # You must implement this!
@@ -200,9 +234,17 @@ class MainApp(tk.Frame):
         # methods to add the contact to your contact list
         name = tk.simpledialog.askstring("Add Contact", "Enter friend name: ")
         print(name)
-        pass
+        self.body.insert_contact(name)
 
     def recipient_selected(self, recipient):
+        self.body.clear_user_message()
+        all_msg = []
+        for dm in self.message:
+            if recipient == dm.__dict__["recipient"]:
+                all_msg.append(dm.__dict__)
+        all_msg.sort(key=lambda x: x["timestamp"])
+        for msg in all_msg:
+            self.body.insert_user_message(msg["message"])
         self.recipient = recipient
 
     def configure_server(self):
@@ -215,7 +257,7 @@ class MainApp(tk.Frame):
         # You must configure and instantiate your
         # DirectMessenger instance after this line.
 
-    def publish(self, message:str):
+    def publish(self, message: str):
         # You must implement this!
         pass
 

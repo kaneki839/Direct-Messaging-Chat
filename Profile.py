@@ -176,13 +176,14 @@ class Profile:
                 self.password = obj['password']
                 self.dsuserver = obj['dsuserver']
                 self.bio = obj['bio']
+                self._friend = obj["_friend"]
                 for post_obj in obj['_posts']:
                     post = Post(post_obj['entry'], post_obj['timestamp'])
                     self._posts.append(post)
                 for dir_msg_obj in obj["_messages"]:
                     msg = ds_messenger.DirectMessage()
                     msg.set_attributes(dir_msg_obj["message"],
-                                       dir_msg_obj["from"],
+                                       dir_msg_obj["recipient"],
                                        dir_msg_obj["timestamp"])
                     self._messages.append(msg)
                 file.close()
