@@ -2,6 +2,10 @@
 module that process three commands including direct
 message, retrieve unread message, and retrieve all message
 """
+# Jyun Rong Liu
+# jyunrl@uci.edu
+# 16169703
+
 import ds_client
 import ds_protocol
 
@@ -65,7 +69,7 @@ class DirectMessenger:
         dm_lst = []
         for msg in msg_lst:
             dm_obj = DirectMessage()
-            dm_obj.set_attributes(msg["from"], msg["message"], msg["timestamp"]
+            dm_obj.set_attributes(msg["message"], msg["from"], msg["timestamp"]
                                   )
             dm_lst.append(dm_obj)
         return dm_lst
@@ -85,7 +89,7 @@ class DirectMessenger:
         dm_lst = []
         for msg in msg_lst:
             dm_obj = DirectMessage()
-            dm_obj.set_attributes(msg["from"], msg["message"], msg["timestamp"]
+            dm_obj.set_attributes(msg["message"], msg["from"], msg["timestamp"]
                                   )
             dm_lst.append(dm_obj)
         return dm_lst

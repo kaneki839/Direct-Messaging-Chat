@@ -71,7 +71,7 @@ def c_command():
     return None
 
 
-def o_command() -> str:
+def o_command():
     """
     Command O (load the entered dsu file)
     """
@@ -121,13 +121,14 @@ def e_command(saved_file):
                 else:
                     new_post = Profile.Post(entry)
                     profile.add_post(new_post)
+
+                    # a5 stuff
+                    sender_obj = ds_messenger.DirectMessenger('168.235.86.101', 'killua', '789')
                     recipient = 'ohhimark'
                     msg = 'test_msg'
-                    sender_obj = ds_messenger.DirectMessenger('168.235.86.101', 'killua', '789')
                     sender_obj.send(msg, recipient)
                     profile.add_recipient(recipient)
-                    sender_lst = sender_obj.retrieve_all()
-                    print(sender_lst)
+                    sender_lst = sender_obj.retrieve_new()
                     for dsm_obj in sender_lst:
                         msg_dict = dsm_obj.__dict__
                         profile.add_msg(msg_dict)

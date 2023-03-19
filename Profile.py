@@ -181,8 +181,8 @@ class Profile:
                     self._posts.append(post)
                 for dir_msg_obj in obj["_messages"]:
                     msg = ds_messenger.DirectMessage()
-                    msg.set_attributes(dir_msg_obj["from"],
-                                       dir_msg_obj["message"],
+                    msg.set_attributes(dir_msg_obj["message"],
+                                       dir_msg_obj["from"],
                                        dir_msg_obj["timestamp"])
                     self._messages.append(msg)
                 file.close()

@@ -1,6 +1,10 @@
 """
 testing module that test the ds_messenger module
 """
+# Jyun Rong Liu
+# jyunrl@uci.edu
+# 16169703
+
 import time
 import unittest
 import ds_messenger
@@ -29,6 +33,10 @@ class TestDsMessenger(unittest.TestCase):
             assert isinstance(obj, ds_messenger.DirectMessage)
 
     def test_if_new_msg(self):
+        """
+        test the cases where new message come in
+        and it got stored as directmessage object
+        """
         sender_obj = ds_messenger.DirectMessenger('168.235.86.101',
                                                   'killua', '789')
         sender_obj.send('testing again', 'killua')
@@ -38,6 +46,9 @@ class TestDsMessenger(unittest.TestCase):
             assert isinstance(obj, ds_messenger.DirectMessage)
 
     def test_set_attributes(self):
+        """
+        test if the set_attribute method successfully store the data
+        """
         dir_msg = ds_messenger.DirectMessage()
         dir_msg.set_attributes('test', 'ohhimark', time.time())
         assert isinstance(dir_msg, ds_messenger.DirectMessage)
