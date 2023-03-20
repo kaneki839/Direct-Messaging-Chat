@@ -162,6 +162,9 @@ class MainApp(tk.Frame):
         self.server = ""
         self.recipient = None
         self.message = None
+        self.direct_messenger = DirectMessage()
+        self.dsu_path = ""
+        self.profile = Profile.Profile()
         # You must implement this! You must configure and
         # instantiate your DirectMessenger instance after this line.
         # self.direct_messenger = ... continue!
@@ -180,20 +183,20 @@ class MainApp(tk.Frame):
                                                          ])
         with open(dsu_file) as my_f:
             print(f"{dsu_file} is opened")
-        profile = Profile.Profile()
-        profile.load_profile(dsu_file)
-        self.username = profile.username
-        self.password = profile.password
-        self.server = profile.dsuserver
-        self.recipient = profile._friend
-        self.message = profile._messages
+        self.profile.load_profile(dsu_file)
+        self.username = self.profile.username
+        self.password = self.profile.password
+        self.server = self.profile.dsuserver
+        self.recipient = self.profile._friend
         single_friend = {}
         place_holder = 0
-        for dir_msg_obj in self.message:
-            single_friend[dir_msg_obj.__dict__["recipient"]] = place_holder
+        for friend in self.recipient:
+            single_friend[friend] = place_holder
             place_holder += 1
         for key in single_friend.keys():
             self.body.insert_contact(key)
+        self.message = self.profile._messages
+        self.dsu_path = dsu_file
         return True
 
     def clear_txt_window(self):
@@ -221,8 +224,9 @@ class MainApp(tk.Frame):
         msg = self.body.get_text_entry()
         if self.recipient is not None:
             dir_msg = DirectMessage()
-            dir_msg.set_attributes(msg, self.recipient, str(time.time()))
+            dir_msg.set_attributes(msg, self.recipient, "[me]" + str(time.time()))
             self.message.append(dir_msg)
+            self.profile.save_profile(self.dsu_path)
             self.body.insert_user_message(msg)
 
         self.body.set_text_entry("")
@@ -244,7 +248,10 @@ class MainApp(tk.Frame):
                 all_msg.append(dm.__dict__)
         all_msg.sort(key=lambda x: x["timestamp"])
         for msg in all_msg:
-            self.body.insert_user_message(msg["message"])
+            if "[me]" in msg["timestamp"]:
+                self.body.insert_user_message(msg["message"])
+            else:
+                self.body.insert_contact_message(msg["message"])
         self.recipient = recipient
 
     def configure_server(self):

@@ -10,7 +10,7 @@ import ds_client
 import ds_protocol
 
 
-class DirectMessage:
+class DirectMessage(dict):
     """
     class that store the response data from the server
     """
@@ -18,14 +18,19 @@ class DirectMessage:
         self.recipient = None
         self.message = None
         self.timestamp = None
+        dict.__init__(self, message=self.message, recipient=self.recipient,
+                      timestamp=self.timestamp)
 
     def set_attributes(self, message, recipient, timestamp):
         """
         store data into directmessage class
         """
         self.message = message
+        dict.__setitem__(self, 'message', message)
         self.recipient = recipient
+        dict.__setitem__(self, 'recipient', recipient)
         self.timestamp = timestamp
+        dict.__setitem__(self, 'timestamp', timestamp)
 
 
 class DirectMessenger:
