@@ -131,10 +131,7 @@ def e_command(saved_file):
                     sender_lst = sender_obj.retrieve_all()
                     for dsm_obj in sender_lst:
                         msg_dict = dsm_obj.__dict__
-                        if recipient in msg_dict["recipient"]:
-                            msg_dict["messages"]
-                        else:
-                            profile.add_msg(msg_dict)
+                        profile.add_msg(msg_dict)
             elif _str == '-delpost':
                 _id = input_command[input_command.index('-delpost') + 1]
                 profile.get_posts()

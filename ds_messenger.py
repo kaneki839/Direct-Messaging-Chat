@@ -70,6 +70,8 @@ class DirectMessenger:
         unread_req = ds_protocol.retrieve_new(self.token)
         resp = ds_client.flush_and_recv(send, unread_req, recv)
         client.close()
+        if resp["response"]["type"] == "error":
+            return []
         msg_lst = resp["response"]["messages"]
         dm_lst = []
         for msg in msg_lst:
@@ -90,6 +92,8 @@ class DirectMessenger:
         all_req = ds_protocol.retrieve_all(self.token)
         resp = ds_client.flush_and_recv(send, all_req, recv)
         client.close()
+        if resp["response"]["type"] == "error":
+            return []
         msg_lst = resp["response"]["messages"]
         dm_lst = []
         for msg in msg_lst:
@@ -101,6 +105,6 @@ class DirectMessenger:
 
 # testing code
 # sender_obj = DirectMessenger('168.235.86.101', 'killua', '789')
-# sender_obj.send("hihihih", 'ohhimark')
+# sender_obj.send("hey there", 'kimaccount2')
 # print(sender_obj.retrieve_new())
 # print(sender_obj.retrieve_all())

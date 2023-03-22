@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, filedialog
 from typing import Text
 import Profile
-from ds_messenger import DirectMessage
+from ds_messenger import DirectMessage, DirectMessenger
 import time
 
 
@@ -43,7 +43,7 @@ class Body(tk.Frame):
         self.entry_editor.delete(1.0, tk.END)
 
     def insert_contact_message(self, message: str):
-        self.entry_editor.insert(1.0, message + '\n', 'entry-left')
+        self.entry_editor.insert(tk.END, message + '\n', 'entry-left')
 
     def get_text_entry(self) -> str:
         return self.message_editor.get('1.0', 'end').rstrip()
@@ -162,9 +162,10 @@ class MainApp(tk.Frame):
         self.server = ""
         self.recipient = None
         self.message = None
-        self.direct_messenger = DirectMessage()
+        self.direct_messenger = None
         self.dsu_path = ""
         self.profile = Profile.Profile()
+        self.friend = None
         # You must implement this! You must configure and
         # instantiate your DirectMessenger instance after this line.
         # self.direct_messenger = ... continue!
@@ -187,20 +188,16 @@ class MainApp(tk.Frame):
         self.username = self.profile.username
         self.password = self.profile.password
         self.server = self.profile.dsuserver
-        self.recipient = self.profile._friend
+        self.friend = self.profile._friend
         single_friend = {}
         place_holder = 0
-        for friend in self.recipient:
+        for friend in self.friend:
             single_friend[friend] = place_holder
             place_holder += 1
         for key in single_friend.keys():
             self.body.insert_contact(key)
         self.message = self.profile._messages
         self.dsu_path = dsu_file
-        return True
-
-    def clear_txt_window(self):
-        del self.body
 
     def create_file(self):
         """
@@ -220,32 +217,53 @@ class MainApp(tk.Frame):
         print('Exit')
 
     def send_message(self):
+        """
+        function for send button
+        """
         # You must implement this!
-        msg = self.body.get_text_entry()
-        if self.recipient is not None:
-            dir_msg = DirectMessage()
-            dir_msg.set_attributes(msg, self.recipient, "[me]" + str(time.time()))
-            self.message.append(dir_msg)
-            self.profile.save_profile(self.dsu_path)
-            self.body.insert_user_message(msg)
+        try:
+            msg = self.body.get_text_entry()
+            send_check = self.direct_messenger.send(msg, self.recipient)
+            if (self.recipient is not None) and send_check:
+                self.body.insert_user_message(msg)
+                dir_msg = DirectMessage()
+                dir_msg.set_attributes(msg, self.recipient,
+                                       "[me]" + str(time.time()))
+                self.message.append(dir_msg)
+                self.profile.save_profile(self.dsu_path)
 
-        self.body.set_text_entry("")
+            self.body.set_text_entry("")
+        except AttributeError:
+            tk.messagebox.showwarning(
+                message="Please choose a friend to send message")
+        except KeyError:
+            tk.messagebox.showwarning(
+                message="Invalid password or username")
+        except ConnectionRefusedError:
+            tk.messagebox.showwarning(message="Invalid server address")
 
     def add_contact(self):
-        # You must implement this!
-        # Hint: check how to use tk.simpledialog.askstring to retrieve
-        # the name of the new contact, and then use one of the body
-        # methods to add the contact to your contact list
-        name = tk.simpledialog.askstring("Add Contact", "Enter friend name: ")
-        print(name)
-        self.body.insert_contact(name)
+        """
+        add contact to the contact tree
+        """
+        try:
+            name = tk.simpledialog.askstring(
+                "Add Contact", "Enter friend name: ")
+            print(name)
+            self.body.insert_contact(name)
+            self.friend.append(name)
+        except TypeError:
+            tk.messagebox.showinfo(message="You've cancelled to add contact")
 
     def recipient_selected(self, recipient):
+        """
+        Handling the action when user switching the chat room
+        """
         self.body.clear_user_message()
         all_msg = []
         for dm in self.message:
-            if recipient == dm.__dict__["recipient"]:
-                all_msg.append(dm.__dict__)
+            if recipient == dm["recipient"]:
+                all_msg.append(dm)
         all_msg.sort(key=lambda x: x["timestamp"])
         for msg in all_msg:
             if "[me]" in msg["timestamp"]:
@@ -255,6 +273,9 @@ class MainApp(tk.Frame):
         self.recipient = recipient
 
     def configure_server(self):
+        """
+        funciton to connect to the server
+        """
         ud = NewContactDialog(self.root, "Configure Account",
                               self.username, self.password, self.server)
         self.username = ud.user
@@ -263,14 +284,30 @@ class MainApp(tk.Frame):
         # You must implement this!
         # You must configure and instantiate your
         # DirectMessenger instance after this line.
-
-    def publish(self, message: str):
-        # You must implement this!
-        pass
+        dir_messenger = DirectMessenger(self.server, self.username,
+                                        self.password)
+        self.direct_messenger = dir_messenger
 
     def check_new(self):
-        # You must implement this!
-        pass
+        """
+        check if there are new message every 3 sec
+        after connect to the server
+        """
+        if self.direct_messenger is not None:
+            new_msg_lst = self.direct_messenger.retrieve_new()
+            for dir_msg_obj in new_msg_lst:
+                self.body.insert_contact_message(
+                    dir_msg_obj.__dict__["message"])
+                if dir_msg_obj.__dict__["recipient"] in self.friend:
+                    pass
+                else:
+                    self.friend.append(dir_msg_obj.__dict__["recipient"])
+                    self.body.insert_contact(dir_msg_obj.__dict__["recipient"])
+                self.message.append(dir_msg_obj.__dict__)
+                self.profile.save_profile(self.dsu_path)
+        else:
+            pass
+        main.after(3000, app.check_new)
 
     def _draw(self):
         # Build a menu and add it to the root frame.
