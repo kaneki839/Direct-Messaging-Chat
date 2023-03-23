@@ -52,3 +52,9 @@ class TestDsMessenger(unittest.TestCase):
         dir_msg = ds_messenger.DirectMessage()
         dir_msg.set_attributes('test', 'ohhimark', time.time())
         assert isinstance(dir_msg, ds_messenger.DirectMessage)
+
+    def test_err_case(self):
+        dir_msg_obj = ds_messenger.DirectMessenger('168.235.86.101',
+                                                   'killua', '000')
+        assert dir_msg_obj.retrieve_new() == []
+        assert dir_msg_obj.retrieve_all() == []

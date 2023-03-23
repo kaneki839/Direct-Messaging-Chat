@@ -18,12 +18,9 @@ DataTuple = namedtuple('DataTuple', ['response', 'token'])
 
 
 def extract_json(json_msg: str) -> DataTuple:
-    '''
-    Call the json.loads function on a json string and convert it to a
-    DataTuple object
-
-    TODO: replace the pseudo placeholder keys with actual DSP protocol keys
-    '''
+    """
+    get response
+    """
     try:
         json_obj = json.loads(json_msg)
         response = json_obj['response']

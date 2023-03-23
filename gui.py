@@ -1,3 +1,7 @@
+# Jyun Rong Liu
+# jyunrl@uci.edu
+# 16169703
+
 import tkinter as tk
 from tkinter import ttk, filedialog
 from typing import Text
@@ -182,8 +186,11 @@ class MainApp(tk.Frame):
         dsu_file = filedialog.askopenfilename(title="Select a dsu file",
                                               filetypes=[("Dsu files", "*.dsu")
                                                          ])
-        with open(dsu_file) as my_f:
-            print(f"{dsu_file} is opened")
+        try:
+            with open(dsu_file) as my_f:
+                print(f"{dsu_file} is opened")
+        except FileNotFoundError as err:
+            tk.messagebox.showwarning(message=err)
         self.profile.load_profile(dsu_file)
         self.username = self.profile.username
         self.password = self.profile.password
@@ -203,24 +210,27 @@ class MainApp(tk.Frame):
         """
         create new dsu file
         """
-        f_name = tk.simpledialog.askstring("Ask file name", "Enter file name: "
-                                           )
-        with open(f_name + ".dsu", "w") as f:
-            pass
-        print(f_name + ".dsu was created")
+        try:
+            f_name = tk.simpledialog.askstring("Ask file name", "Enter file name: "
+                                            )
+            with open(f_name + ".dsu", "w") as f:
+                pass
+            print(f_name + ".dsu was created")
+            self.dsu_path = f_name + ".dsu"
+        except TypeError:
+            tk.messagebox.showwarning(message="You've cancelled to create a file")
 
     def close_gui(self):
         """
         Exit the GUI
         """
-        self.root.quit()
+        self.root.destroy()
         print('Exit')
 
     def send_message(self):
         """
         function for send button
         """
-        # You must implement this!
         try:
             msg = self.body.get_text_entry()
             send_check = self.direct_messenger.send(msg, self.recipient)
@@ -249,9 +259,9 @@ class MainApp(tk.Frame):
         try:
             name = tk.simpledialog.askstring(
                 "Add Contact", "Enter friend name: ")
-            print(name)
             self.body.insert_contact(name)
-            self.friend.append(name)
+            self.profile._friend.append(name)
+            self.profile.save_profile(self.dsu_path)
         except TypeError:
             tk.messagebox.showinfo(message="You've cancelled to add contact")
 
@@ -281,6 +291,10 @@ class MainApp(tk.Frame):
         self.username = ud.user
         self.password = ud.pwd
         self.server = ud.server
+        self.profile.username = self.username
+        self.profile.password = self.password
+        self.profile.dsuserver = self.server
+        self.profile.save_profile(self.dsu_path)
         # You must implement this!
         # You must configure and instantiate your
         # DirectMessenger instance after this line.

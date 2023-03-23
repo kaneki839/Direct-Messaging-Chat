@@ -64,44 +64,46 @@ class DirectMessenger:
         """
         # must return a list of DirectMessage objects containing all new
         # messages
-        self.token, send, recv, \
-            client = ds_client.only_join(self.dsuserver, 3021,
-                                         self.username, self.password)
-        unread_req = ds_protocol.retrieve_new(self.token)
-        resp = ds_client.flush_and_recv(send, unread_req, recv)
-        client.close()
-        if resp["response"]["type"] == "error":
+        try:
+            self.token, send, recv, \
+                client = ds_client.only_join(self.dsuserver, 3021,
+                                             self.username, self.password)
+            unread_req = ds_protocol.retrieve_new(self.token)
+            resp = ds_client.flush_and_recv(send, unread_req, recv)
+            client.close()
+            msg_lst = resp["response"]["messages"]
+            dm_lst = []
+            for msg in msg_lst:
+                dm_obj = DirectMessage()
+                dm_obj.set_attributes(msg["message"], msg["from"],
+                                      msg["timestamp"])
+                dm_lst.append(dm_obj)
+            return dm_lst
+        except KeyError:
             return []
-        msg_lst = resp["response"]["messages"]
-        dm_lst = []
-        for msg in msg_lst:
-            dm_obj = DirectMessage()
-            dm_obj.set_attributes(msg["message"], msg["from"], msg["timestamp"]
-                                  )
-            dm_lst.append(dm_obj)
-        return dm_lst
 
     def retrieve_all(self) -> list:
         """
         method for retrieving all messages
         """
         # must return a list of DirectMessage objects containing all messages
-        self.token, send, recv, \
-            client = ds_client.only_join(self.dsuserver, 3021,
-                                         self.username, self.password)
-        all_req = ds_protocol.retrieve_all(self.token)
-        resp = ds_client.flush_and_recv(send, all_req, recv)
-        client.close()
-        if resp["response"]["type"] == "error":
+        try:
+            self.token, send, recv, \
+                client = ds_client.only_join(self.dsuserver, 3021,
+                                             self.username, self.password)
+            all_req = ds_protocol.retrieve_all(self.token)
+            resp = ds_client.flush_and_recv(send, all_req, recv)
+            client.close()
+            msg_lst = resp["response"]["messages"]
+            dm_lst = []
+            for msg in msg_lst:
+                dm_obj = DirectMessage()
+                dm_obj.set_attributes(msg["message"], msg["from"],
+                                      msg["timestamp"])
+                dm_lst.append(dm_obj)
+            return dm_lst
+        except KeyError:
             return []
-        msg_lst = resp["response"]["messages"]
-        dm_lst = []
-        for msg in msg_lst:
-            dm_obj = DirectMessage()
-            dm_obj.set_attributes(msg["message"], msg["from"], msg["timestamp"]
-                                  )
-            dm_lst.append(dm_obj)
-        return dm_lst
 
 # testing code
 # sender_obj = DirectMessenger('168.235.86.101', 'killua', '789')
