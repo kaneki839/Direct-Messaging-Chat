@@ -189,36 +189,38 @@ class MainApp(tk.Frame):
         try:
             with open(dsu_file) as my_f:
                 print(f"{dsu_file} is opened")
-        except FileNotFoundError as err:
-            tk.messagebox.showwarning(message=err)
-        self.profile.load_profile(dsu_file)
-        self.username = self.profile.username
-        self.password = self.profile.password
-        self.server = self.profile.dsuserver
-        self.friend = self.profile._friend
-        single_friend = {}
-        place_holder = 0
-        for friend in self.friend:
-            single_friend[friend] = place_holder
-            place_holder += 1
-        for key in single_friend.keys():
-            self.body.insert_contact(key)
-        self.message = self.profile._messages
-        self.dsu_path = dsu_file
+            self.profile.load_profile(dsu_file)
+            self.username = self.profile.username
+            self.password = self.profile.password
+            self.server = self.profile.dsuserver
+            self.friend = self.profile._friend
+            single_friend = {}
+            place_holder = 0
+            for friend in self.friend:
+                single_friend[friend] = place_holder
+                place_holder += 1
+            for key in single_friend.keys():
+                self.body.insert_contact(key)
+            self.message = self.profile._messages
+            self.dsu_path = dsu_file
+        except (FileNotFoundError, Profile.DsuFileError):
+            tk.messagebox.showwarning(
+                        message="You've cancelled to open the dsu file")
 
     def create_file(self):
         """
         create new dsu file
         """
         try:
-            f_name = tk.simpledialog.askstring("Ask file name", "Enter file name: "
-                                            )
+            f_name = tk.simpledialog.askstring(
+                "Ask file name", "Enter file name: ")
             with open(f_name + ".dsu", "w") as f:
                 pass
             print(f_name + ".dsu was created")
             self.dsu_path = f_name + ".dsu"
         except TypeError:
-            tk.messagebox.showwarning(message="You've cancelled to create a file")
+            tk.messagebox.showwarning(
+                message="You've cancelled to create a file")
 
     def close_gui(self):
         """
@@ -245,7 +247,8 @@ class MainApp(tk.Frame):
             self.body.set_text_entry("")
         except AttributeError:
             tk.messagebox.showwarning(
-                message="Please choose a friend to send message")
+                message="Either choose friend to send message OR Entered \
+                message to sent")
         except KeyError:
             tk.messagebox.showwarning(
                 message="Invalid password or username")
@@ -286,21 +289,25 @@ class MainApp(tk.Frame):
         """
         funciton to connect to the server
         """
-        ud = NewContactDialog(self.root, "Configure Account",
-                              self.username, self.password, self.server)
-        self.username = ud.user
-        self.password = ud.pwd
-        self.server = ud.server
-        self.profile.username = self.username
-        self.profile.password = self.password
-        self.profile.dsuserver = self.server
-        self.profile.save_profile(self.dsu_path)
-        # You must implement this!
-        # You must configure and instantiate your
-        # DirectMessenger instance after this line.
-        dir_messenger = DirectMessenger(self.server, self.username,
-                                        self.password)
-        self.direct_messenger = dir_messenger
+        try:
+            ud = NewContactDialog(self.root, "Configure Account",
+                                  self.username, self.password, self.server)
+            self.username = ud.user
+            self.password = ud.pwd
+            self.server = ud.server
+            self.profile.username = self.username
+            self.profile.password = self.password
+            self.profile.dsuserver = self.server
+            self.profile.save_profile(self.dsu_path)
+            # You must implement this!
+            # You must configure and instantiate your
+            # DirectMessenger instance after this line.
+            dir_messenger = DirectMessenger(self.server, self.username,
+                                            self.password)
+            self.direct_messenger = dir_messenger
+        except Profile.DsuFileError:
+            tk.messagebox.showinfo(
+                message="You've cancelled to configured server")
 
     def check_new(self):
         """
