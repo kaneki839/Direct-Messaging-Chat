@@ -123,7 +123,8 @@ def e_command(saved_file):
                     profile.add_post(new_post)
 
                     # a5 stuff
-                    sender_obj = ds_messenger.DirectMessenger('168.235.86.101', 'killua', '789')
+                    sender_obj = ds_messenger.DirectMessenger('168.235.86.101',
+                                                              'killua', '789')
                     recipient = 'ohhimark'
                     msg = 'test_msg'
                     sender_obj.send(msg, recipient)

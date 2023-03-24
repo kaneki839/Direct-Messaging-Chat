@@ -25,9 +25,8 @@ class TestDsMessenger(unittest.TestCase):
         assert sender_obj.send('testing again', 'ohhimark') is True
         assert sender_obj.send('None', None) is False
 
-        # assert sender_obj.send('testing again', 2) is False
-
-        assert sender_obj.retrieve_new() == []
+        empty = []
+        assert sender_obj.retrieve_new() == empty
 
         for obj in sender_obj.retrieve_all():
             assert isinstance(obj, ds_messenger.DirectMessage)
@@ -54,7 +53,11 @@ class TestDsMessenger(unittest.TestCase):
         assert isinstance(dir_msg, ds_messenger.DirectMessage)
 
     def test_err_case(self):
+        """
+        test when function get error response from server
+        """
         dir_msg_obj = ds_messenger.DirectMessenger('168.235.86.101',
                                                    'killua', '000')
-        assert dir_msg_obj.retrieve_new() == []
-        assert dir_msg_obj.retrieve_all() == []
+        empty = []
+        assert dir_msg_obj.retrieve_new() == empty
+        assert dir_msg_obj.retrieve_all() == empty

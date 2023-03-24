@@ -82,8 +82,10 @@ class Body(tk.Frame):
                                  expand=True, padx=0, pady=0)
 
         self.entry_editor = tk.Text(editor_frame, width=0, height=5)
-        self.entry_editor.tag_configure('entry-right', justify='right')
-        self.entry_editor.tag_configure('entry-left', justify='left')
+        self.entry_editor.tag_configure('entry-right', justify='right',
+                                        foreground='yellow')
+        self.entry_editor.tag_configure('entry-left', justify='left',
+                                        foreground='pink')
         self.entry_editor.pack(fill=tk.BOTH, side=tk.LEFT,
                                expand=True, padx=0, pady=0)
 
@@ -106,7 +108,11 @@ class Footer(tk.Frame):
             self._send_callback()
 
     def _draw(self):
+        # send_img = tk.PhotoImage('1.png')
+        # img_label = tk.Label(image=send_img)
+        # img_label.pack(fill=tk.BOTH, side=tk.RIGHT, padx=5, pady=5)
         save_button = tk.Button(master=self, text="Send", width=20,
+                                font=("Courier", 15),
                                 command=self.send_click)
         # You must implement this.
         # Here you must configure the button to bind its click to
@@ -206,6 +212,9 @@ class MainApp(tk.Frame):
         except (FileNotFoundError, Profile.DsuFileError):
             tk.messagebox.showwarning(
                         message="You've cancelled to open the dsu file")
+        except Profile.DsuProfileError:
+            tk.messagebox.showwarning(
+                        message="Unable to load empty file")
 
     def create_file(self):
         """
@@ -277,7 +286,7 @@ class MainApp(tk.Frame):
         for dm in self.message:
             if recipient == dm["recipient"]:
                 all_msg.append(dm)
-        all_msg.sort(key=lambda x: x["timestamp"])
+        all_msg.sort(key=lambda x: x["timestamp"].strip('[me]'))
         for msg in all_msg:
             if "[me]" in msg["timestamp"]:
                 self.body.insert_user_message(msg["message"])
@@ -315,17 +324,22 @@ class MainApp(tk.Frame):
         after connect to the server
         """
         if self.direct_messenger is not None:
-            new_msg_lst = self.direct_messenger.retrieve_new()
-            for dir_msg_obj in new_msg_lst:
-                self.body.insert_contact_message(
-                    dir_msg_obj.__dict__["message"])
-                if dir_msg_obj.__dict__["recipient"] in self.friend:
-                    pass
-                else:
-                    self.friend.append(dir_msg_obj.__dict__["recipient"])
-                    self.body.insert_contact(dir_msg_obj.__dict__["recipient"])
-                self.message.append(dir_msg_obj.__dict__)
-                self.profile.save_profile(self.dsu_path)
+            try:
+                new_msg_lst = self.direct_messenger.retrieve_new()
+                for dir_msg_obj in new_msg_lst:
+                    self.body.insert_contact_message(
+                        dir_msg_obj.__dict__["message"])
+                    if dir_msg_obj.__dict__["recipient"] in self.friend:
+                        pass
+                    else:
+                        self.friend.append(dir_msg_obj.__dict__["recipient"])
+                        self.body.insert_contact(
+                            dir_msg_obj.__dict__["recipient"])
+                    self.message.append(dir_msg_obj.__dict__)
+                    self.profile.save_profile(self.dsu_path)
+            except ConnectionRefusedError:
+                tk.messagebox.showinfo(
+                    message="You've cancelled to configured server")
         else:
             pass
         main.after(3000, app.check_new)

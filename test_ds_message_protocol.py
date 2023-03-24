@@ -41,5 +41,8 @@ class TestDsProtocol(unittest.TestCase):
         client.close()
 
     def test_extract_json(self):
+        """
+        testing extract json function
+        """
         json_str = '{"response":}}'
         assert ds_protocol.extract_json(json_str) is False
