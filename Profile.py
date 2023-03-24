@@ -57,18 +57,6 @@ class Profile:
         self._friend = []
         self._messages = []
 
-    def add_recipient(self, recipient):
-        """
-        adding recipient
-        """
-        self._friend.append(recipient)
-
-    def add_msg(self, dir_msg_obj):
-        """
-        adding directmessage object
-        """
-        self._messages.append(dir_msg_obj)
-
     def save_profile(self, path: str) -> None:
         """
         save profile information
@@ -85,6 +73,7 @@ class Profile:
                  DSU file.", ex) from ex
         else:
             raise DsuFileError("Invalid DSU file path or type")
+        return True
 
     def load_profile(self, path: str) -> None:
         """
@@ -111,3 +100,4 @@ class Profile:
                 raise DsuProfileError(ex) from ex
         else:
             raise DsuFileError()
+        return True
