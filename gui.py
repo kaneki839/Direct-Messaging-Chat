@@ -276,7 +276,7 @@ class MainApp(tk.Frame):
         Exit the GUI
         """
         self.root.destroy()
-        print('Exit')
+        print('Close')
 
     def send_message(self):
         """
@@ -414,8 +414,9 @@ class MainApp(tk.Frame):
         self.footer.pack(fill=tk.BOTH, side=tk.BOTTOM)
 
 
-if __name__ == "__main__":
+def start():
     # All Tkinter programs start with a root window. We will name ours 'main'.
+    global main
     main = tk.Tk()
 
     # 'title' assigns a text value to the Title Bar area of a window.
@@ -434,6 +435,7 @@ if __name__ == "__main__":
     # widgets used in the program. All of the classes that we use,
     # subclass Tk.Frame, since our root frame is main, we initialize
     # the class with it.
+    global app
     app = MainApp(main)
 
     # When update is called, we finalize the states of all widgets that
