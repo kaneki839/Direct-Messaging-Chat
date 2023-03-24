@@ -16,7 +16,6 @@ Profile module
 # since we already covered a bit of the JSON format in class.
 #
 import json
-import time
 from pathlib import Path
 import ds_messenger
 
@@ -27,7 +26,6 @@ class DsuFileError(Exception):
     owncode. It is raised when attempting to load or save Profile objects to
     file the system.
     """
-    pass
 
 
 class DsuProfileError(Exception):
@@ -36,56 +34,6 @@ class DsuProfileError(Exception):
     own code. It is raised when attempting to deserialize a dsu file to a
     Profile object.
     """
-    pass
-
-
-class Post(dict):
-    """
-    The Post class is responsible for working with individual user posts. It
-    currently supports two features: A timestamp property that is set upon
-    instantiation and when the entry object is set and an entry property that
-    stores the post message.
-    """
-    def __init__(self, entry: str = None, timestamp: float = 0):
-        self._timestamp = timestamp
-        self.set_entry(entry)
-
-        # Subclass dict to expose Post properties for serialization
-        # Don't worry about this!
-        dict.__init__(self, entry=self._entry, timestamp=self._timestamp)
-
-    def set_entry(self, entry):
-        """
-        Entry setting
-        """
-        self._entry = entry
-        dict.__setitem__(self, 'entry', entry)
-
-        # If timestamp has not been set, generate a new from time module
-        if self._timestamp == 0:
-            self._timestamp = time.time()
-
-    def get_entry(self):
-        """
-        get entry
-        """
-        return self._entry
-
-    def set_time(self, time: float):
-        """
-        set time in entry
-        """
-        self._timestamp = time
-        dict.__setitem__(self, 'timestamp', time)
-
-    def get_time(self):
-        """
-        get time
-        """
-        return self._timestamp
-
-    entry = property(get_entry, set_entry)
-    timestamp = property(get_time, set_time)
 
 
 class Profile:
@@ -106,8 +54,6 @@ class Profile:
         self.dsuserver = dsuserver  # REQUIRED
         self.username = username  # REQUIRED
         self.password = password  # REQUIRED
-        self.bio = ''            # OPTIONAL
-        self._posts = []         # OPTIONAL
         self._friend = []
         self._messages = []
 
@@ -122,28 +68,6 @@ class Profile:
         adding directmessage object
         """
         self._messages.append(dir_msg_obj)
-
-    def add_post(self, post: Post) -> None:
-        """
-        adding post
-        """
-        self._posts.append(post)
-
-    def del_post(self, index: int) -> bool:
-        """
-        deleting post
-        """
-        try:
-            del self._posts[index]
-            return True
-        except IndexError:
-            return False
-
-    def get_posts(self) -> list[Post]:
-        """
-        get all post
-        """
-        return self._posts
 
     def save_profile(self, path: str) -> None:
         """
@@ -175,11 +99,7 @@ class Profile:
                 self.username = obj['username']
                 self.password = obj['password']
                 self.dsuserver = obj['dsuserver']
-                self.bio = obj['bio']
                 self._friend = obj["_friend"]
-                for post_obj in obj['_posts']:
-                    post = Post(post_obj['entry'], post_obj['timestamp'])
-                    self._posts.append(post)
                 for dir_msg_obj in obj["_messages"]:
                     msg = ds_messenger.DirectMessage()
                     msg.set_attributes(dir_msg_obj["message"],

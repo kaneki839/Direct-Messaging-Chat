@@ -1,3 +1,6 @@
+"""
+GUI Module (tkinter) for chat room
+"""
 # Jyun Rong Liu
 # jyunrl@uci.edu
 # 16169703
@@ -5,12 +8,15 @@
 import tkinter as tk
 from tkinter import ttk, filedialog
 from typing import Text
+import time
 import Profile
 from ds_messenger import DirectMessage, DirectMessenger
-import time
 
 
 class Body(tk.Frame):
+    """
+    Body part of the tk window
+    """
     def __init__(self, root, recipient_selected_callback=None):
         tk.Frame.__init__(self, root)
         self.root = root
@@ -22,6 +28,10 @@ class Body(tk.Frame):
         self._draw()
 
     def node_select(self, event):
+        """
+        built-in caaling function allow
+        user to switch between contact
+        """
         print(event)
         idx = self.posts_tree.selection()
         if len(idx) > 0:
@@ -31,28 +41,49 @@ class Body(tk.Frame):
                 self._select_callback(entry)
 
     def insert_contact(self, contact: str):
+        """
+        insert contact to contact tree
+        """
         self._contacts.append(contact)
-        id = len(self._contacts) - 1
-        self._insert_contact_tree(id, contact)
+        id_ = len(self._contacts) - 1
+        self._insert_contact_tree(id_, contact)
 
-    def _insert_contact_tree(self, id, contact: str):
+    def _insert_contact_tree(self, id_, contact: str):
+        """
+        contact tree that store the contact
+        """
         if len(contact) > 25:
             entry = contact[:24] + "..."
-        id = self.posts_tree.insert('', id, id, text=contact)
+        id_ = self.posts_tree.insert('', id_, id_, text=contact)
 
     def insert_user_message(self, message: str):
+        """
+        insert the message user send to the entry frame
+        """
         self.entry_editor.insert(tk.END, message + '\n', 'entry-right')
 
     def clear_user_message(self):
+        """
+        clear out all the message
+        """
         self.entry_editor.delete(1.0, tk.END)
 
     def insert_contact_message(self, message: str):
+        """
+        insert the message the contact send to the entry frame
+        """
         self.entry_editor.insert(tk.END, message + '\n', 'entry-left')
 
     def get_text_entry(self) -> str:
+        """
+        get the text entered in the text entry
+        """
         return self.message_editor.get('1.0', 'end').rstrip()
 
     def set_text_entry(self, text: str):
+        """
+        set the text entry to specific text
+        """
         self.message_editor.delete(1.0, tk.END)
         self.message_editor.insert(1.0, text)
 
@@ -97,6 +128,9 @@ class Body(tk.Frame):
 
 
 class Footer(tk.Frame):
+    """
+    Footer that contained send button
+    """
     def __init__(self, root, send_callback=None):
         tk.Frame.__init__(self, root)
         self.root = root
@@ -104,13 +138,13 @@ class Footer(tk.Frame):
         self._draw()
 
     def send_click(self):
+        """
+        check if send button was clicked
+        """
         if self._send_callback is not None:
             self._send_callback()
 
     def _draw(self):
-        # send_img = tk.PhotoImage('1.png')
-        # img_label = tk.Label(image=send_img)
-        # img_label.pack(fill=tk.BOTH, side=tk.RIGHT, padx=5, pady=5)
         save_button = tk.Button(master=self, text="Send", width=20,
                                 font=("Courier", 15),
                                 command=self.send_click)
@@ -124,6 +158,9 @@ class Footer(tk.Frame):
 
 
 class NewContactDialog(tk.simpledialog.Dialog):
+    """
+    Class used for configuring server and set up username and password
+    """
     def __init__(self, root, title=None, user=None, pwd=None, server=None):
         self.root = root
         self.server = server
@@ -147,7 +184,7 @@ class NewContactDialog(tk.simpledialog.Dialog):
         self.password_label = tk.Label(frame, width=30, text="Password")
         self.password_label.pack()
         self.password_entry = tk.Entry(frame, width=30)
-        # self.password_entry['show'] = '*'
+        self.password_entry['show'] = '*'
         self.password_entry.insert(tk.END, self.pwd)
         self.password_entry.pack()
         # You need to implement also the region for the user to enter
@@ -164,6 +201,9 @@ class NewContactDialog(tk.simpledialog.Dialog):
 
 
 class MainApp(tk.Frame):
+    """
+    Main class that handled most of functionalities in GUI
+    """
     def __init__(self, root):
         tk.Frame.__init__(self, root)
         self.root = root
@@ -193,7 +233,7 @@ class MainApp(tk.Frame):
                                               filetypes=[("Dsu files", "*.dsu")
                                                          ])
         try:
-            with open(dsu_file) as my_f:
+            with open(dsu_file, encoding='utf-8') as my_f:
                 print(f"{dsu_file} is opened")
             self.profile.load_profile(dsu_file)
             self.username = self.profile.username
@@ -223,7 +263,7 @@ class MainApp(tk.Frame):
         try:
             f_name = tk.simpledialog.askstring(
                 "Ask file name", "Enter file name: ")
-            with open(f_name + ".dsu", "w") as f:
+            with open(f_name + ".dsu", "w", encoding='utf-8') as file:
                 pass
             print(f_name + ".dsu was created")
             self.dsu_path = f_name + ".dsu"
@@ -246,7 +286,7 @@ class MainApp(tk.Frame):
             msg = self.body.get_text_entry()
             send_check = self.direct_messenger.send(msg, self.recipient)
             if (self.recipient is not None) and send_check:
-                self.body.insert_user_message(msg)
+                self.body.insert_user_message(f'{self.username}: ' + msg)
                 dir_msg = DirectMessage()
                 dir_msg.set_attributes(msg, self.recipient,
                                        "[me]" + str(time.time()))
@@ -283,15 +323,17 @@ class MainApp(tk.Frame):
         """
         self.body.clear_user_message()
         all_msg = []
-        for dm in self.message:
-            if recipient == dm["recipient"]:
-                all_msg.append(dm)
+        for dm_ in self.message:
+            if recipient == dm_["recipient"]:
+                all_msg.append(dm_)
         all_msg.sort(key=lambda x: x["timestamp"].strip('[me]'))
         for msg in all_msg:
             if "[me]" in msg["timestamp"]:
-                self.body.insert_user_message(msg["message"])
+                self.body.insert_user_message(
+                    f'{self.username}: ' + msg["message"])
             else:
-                self.body.insert_contact_message(msg["message"])
+                self.body.insert_contact_message(
+                    f'{recipient}: ' + msg["message"])
         self.recipient = recipient
 
     def configure_server(self):
@@ -299,11 +341,11 @@ class MainApp(tk.Frame):
         funciton to connect to the server
         """
         try:
-            ud = NewContactDialog(self.root, "Configure Account",
-                                  self.username, self.password, self.server)
-            self.username = ud.user
-            self.password = ud.pwd
-            self.server = ud.server
+            ud_ = NewContactDialog(self.root, "Configure Account",
+                                   self.username, self.password, self.server)
+            self.username = ud_.user
+            self.password = ud_.pwd
+            self.server = ud_.server
             self.profile.username = self.username
             self.profile.password = self.password
             self.profile.dsuserver = self.server
@@ -328,7 +370,8 @@ class MainApp(tk.Frame):
                 new_msg_lst = self.direct_messenger.retrieve_new()
                 for dir_msg_obj in new_msg_lst:
                     self.body.insert_contact_message(
-                        dir_msg_obj.__dict__["message"])
+                        f'{self.recipient}: ' + dir_msg_obj.__dict__["message"]
+                        )
                     if dir_msg_obj.__dict__["recipient"] in self.friend:
                         pass
                     else:
@@ -401,8 +444,8 @@ if __name__ == "__main__":
     # behavior of the window changes.
     main.update()
     main.minsize(main.winfo_width(), main.winfo_height())
-    id = main.after(2000, app.check_new)
-    print(id)
+    id_o = main.after(2000, app.check_new)
+    print(id_o)
     # And finally, start up the event loop for the program (you can find
     # more on this in lectures of week 9 and 10).
     main.mainloop()
