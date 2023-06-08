@@ -232,8 +232,6 @@ class MainApp(tk.Frame):
                                               filetypes=[("Dsu files", "*.dsu")
                                                          ])
         try:
-            with open(dsu_file, encoding='utf-8') as my_f:
-                print(f"{dsu_file} is opened")
             self.profile.load_profile(dsu_file)
             self.username = self.profile.username
             self.password = self.profile.password
@@ -260,13 +258,10 @@ class MainApp(tk.Frame):
         create new dsu file
         """
         try:
-            f_name = tk.simpledialog.askstring(
-                "Ask file name", "Enter file name: ")
-            with open(f_name + ".dsu", "w", encoding='utf-8') as file:
-                pass
-            print(f_name + ".dsu was created")
-            self.dsu_path = f_name + ".dsu"
-        except TypeError:
+            f_name = tk.filedialog.asksaveasfile(filetypes=[('Dsu File',
+                                                            '*.dsu')])
+            self.dsu_path = f_name.name
+        except AttributeError:
             tk.messagebox.showwarning(
                 message="You've cancelled to create a file")
 
